@@ -1,0 +1,40 @@
+# Docker
+# Build a Docker image
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+  branches:
+    include:
+      - '*'
+  paths:
+   exclude:
+    - 'src/adservice/*'
+    - 'src/cartservice/*'
+    - 'src/checkoutservice/*'
+    - 'src/currencyservice/*'
+    - 'src/emailservice/*'
+    - 'src/frontend/*'
+    - 'src/loadgenerator/*'
+    - 'src/paymentservice/*'
+    - 'src/productcatalogservice/*'
+    - 'src/recommendationservice/*'
+    - 'src/shippingservice/*'
+
+pool:
+  name: devops
+
+resources:
+- repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+
+stages:
+- stage: CheckBranch
+
+  displayName: Check Triggered Branch
+  jobs:
+  - job: printBranch
+    displayName: Print Build.SourceBranch
+    steps:
+    - script: echo "Triggered branch $(Build.SourceBranch)"

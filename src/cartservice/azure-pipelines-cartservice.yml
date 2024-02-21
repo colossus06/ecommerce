@@ -1,0 +1,122 @@
+trigger:
+  branches:
+    include:
+      - '*'
+  paths:
+    include:
+      - 'src/cartservice/*'
+
+pool:
+ name: devops
+
+resources:
+- repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+  service: cartservice
+
+stages:
+- stage: CheckBranch
+  displayName: Check Triggered Branch
+  jobs:
+  - job: printBranch
+    displayName: Print Build.SourceBranch
+    steps:
+    - script: echo "Triggered branch $(Build.SourceBranch)"
+# - stage: unittests
+#   displayName: unittests
+#   jobs:
+#   - job: Test
+#     displayName: C#
+#     steps:
+#     - task: DotNetCoreCLI@2
+#       displayName: 'dotnet test'
+#       inputs:
+#         command: test
+#         testRunTitle: 'C# Unit Tests'
+#         projects: 'src/cartservice'
+#         workingDirectory: src/cartservice
+#       timeoutInMinutes: 10
+# - stage: Sonar
+#   displayName: Sonar
+#   jobs:
+#   - job: prep
+#     displayName: prep
+#     steps:
+#     - task: SonarQubePrepare@5
+#       inputs:
+#         SonarQube: 'sonar'
+#         scannerMode: 'CLI'
+#         configMode: 'manual'
+#         cliProjectKey: 'azure-devops-cicd10'
+#         cliProjectName: 'azure-devops-cicd10'
+#         cliSources: 'src/cartservice'
+#         extraProperties: |
+#           sonar.java.binaries=.
+#           sonar.branch.name=cartservice
+#           sonar.organization=azure-devops-cicd10
+#     - task: SonarQubeAnalyze@5
+#       inputs:
+#         jdkversion: 'JAVA_HOME'
+
+- stage: Login
+  displayName: Login
+  jobs:
+  - job: Login
+    displayName: Login
+    steps:
+    - task: Docker@2
+      displayName: Login
+      inputs:
+        containerRegistry: 'docker'
+        command: 'login'
+- stage: Build
+  displayName: Build image
+  jobs:
+  - job: Build
+    displayName: Build
+    steps:
+    - task: Docker@2
+      displayName: Build an image
+      inputs:
+        containerRegistry: 'docker'
+        repository: 'elkakimmie/cartservice'
+        command: 'build'
+        Dockerfile: 'src/cartservice/src/Dockerfile'
+        tags: '$(tag)'
+- stage: Imagescan
+  displayName: imagescan
+  jobs:
+  - job: scan
+    continueOnError: true 
+    displayName: scan
+    steps:
+    - task: trivy@1
+      inputs:
+        version: 'latest'
+        image: 'elkakimmie/cartservice'
+- stage: Push
+  displayName: Push image
+  jobs:
+  - job: Push
+    displayName: Push
+    steps:
+    - task: Docker@2
+      displayName: Build an image
+      inputs:
+        containerRegistry: 'docker'
+        repository: 'elkakimmie/cartservice'
+        command: 'push'
+        Dockerfile: 'src/cartservice/src/Dockerfile'
+        tags: '$(tag)'
+- stage: Updatek8s
+  displayName: updatek8s
+  jobs:
+  - job: Updatek8s
+    displayName: updatek8s
+    steps:
+    - task: ShellScript@2
+      inputs:
+        scriptPath: '$(Build.Repository.LocalPath)/scripts/updateK8s.sh'
+        args: '$(service) $(tag)'

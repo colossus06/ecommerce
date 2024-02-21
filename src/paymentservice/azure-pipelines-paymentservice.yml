@@ -1,0 +1,97 @@
+# Docker
+# Build a Docker image
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+  paths:
+    include:
+    - 'src/paymentservice/*'
+
+pool:
+ name: devops
+
+resources:
+- repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+  service: paymentservice
+
+stages:
+- stage: CheckBranch
+  displayName: Check Triggered Branch
+  jobs:
+  - job: printBranch
+    displayName: Print Build.SourceBranch
+    steps:
+    - script: echo "Triggered branch $(Build.SourceBranch)"
+# - stage: Sonar
+#   displayName: Sonar
+#   jobs:
+#   - job: prep
+#     displayName: prep
+#     steps:
+#     - task: SonarQubePrepare@5
+#       inputs:
+#         SonarQube: 'sonar'
+#         scannerMode: 'CLI'
+#         configMode: 'manual'
+#         cliProjectKey: 'azure-devops-cicd10'
+#         cliProjectName: 'azure-devops-cicd10'
+#         cliSources: 'src/paymentservice'
+#         extraProperties: |
+#           sonar.java.binaries=.
+#           sonar.branch.name=paymentservice
+#           sonar.organization=azure-devops-cicd10
+#     - task: SonarQubeAnalyze@5
+#       inputs:
+#         jdkversion: 'JAVA_HOME'
+- stage: Build
+  displayName: Build image
+  jobs:
+  - job: Build
+    displayName: Build
+    steps:
+    - task: Docker@2
+      displayName: Build an image
+      inputs:
+        containerRegistry: 'docker'
+        repository: 'elkakimmie/paymentservice'
+        command: 'build'
+        Dockerfile: 'src/paymentservice/Dockerfile'
+        tags: '$(tag)'
+- stage: Imagescan
+  displayName: imagescan
+  jobs:
+  - job: scan
+    continueOnError: true
+    displayName: scan
+    steps:
+    - task: trivy@1
+      inputs:
+        version: 'latest'
+        image: 'elkakimmie/loadgenerator'
+- stage: Push
+  displayName: Push image
+  jobs:
+  - job: Push
+    displayName: Push
+    steps:
+    - task: Docker@2
+      displayName: Build an image
+      inputs:
+        containerRegistry: 'docker'
+        repository: 'elkakimmie/paymentservice'
+        command: 'push'
+        Dockerfile: 'src/paymentservice/Dockerfile'
+        tags: '$(tag)'
+- stage: Updatek8s
+  displayName: updatek8s
+  jobs:
+  - job: Updatek8s
+    displayName: updatek8s
+    steps:
+    - task: ShellScript@2
+      inputs:
+        scriptPath: '$(Build.Repository.LocalPath)/scripts/updateK8s.sh'
+        args: '$(service) $(tag)'
