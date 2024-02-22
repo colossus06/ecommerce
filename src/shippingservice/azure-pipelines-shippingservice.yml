@@ -78,16 +78,16 @@ stages:
         command: 'build'
         Dockerfile: 'src/shippingservice/Dockerfile'
         tags: '$(tag)'
-- stage: Imagescan
-  displayName: imagescan
-  jobs:
-  - job: scan
-    displayName: scan
-    steps:
-    - task: trivy@1
-      inputs:
-        version: 'latest'
-        image: 'elkakimmie/shippingservice'
+# - stage: Imagescan
+#   displayName: imagescan
+#   jobs:
+#   - job: scan
+#     displayName: scan
+#     steps:
+#     - task: trivy@1
+#       inputs:
+#         version: 'latest'
+#         image: 'elkakimmie/shippingservice'
 - stage: Push
   displayName: Push image
   jobs:

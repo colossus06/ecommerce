@@ -87,17 +87,17 @@ stages:
         command: 'build'
         Dockerfile: 'src/productcatalogservice/Dockerfile'
         tags: '$(tag)'
-- stage: Imagescan
-  displayName: imagescan
-  jobs:
-  - job: scan
-    continueOnError: true 
-    displayName: scan
-    steps:
-    - task: trivy@1
-      inputs:
-        version: 'latest'
-        image: 'elkakimmie/productcatalogservice'
+# - stage: Imagescan
+#   displayName: imagescan
+#   jobs:
+#   - job: scan
+#     continueOnError: true 
+#     displayName: scan
+#     steps:
+#     - task: trivy@1
+#       inputs:
+#         version: 'latest'
+#         image: 'elkakimmie/productcatalogservice'
 - stage: Push
   displayName: Push image
   jobs:

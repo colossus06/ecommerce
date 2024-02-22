@@ -56,17 +56,17 @@ stages:
         command: 'build'
         Dockerfile: 'src/recommendationservice/Dockerfile'
         tags: '$(tag)'
-- stage: Imagescan
-  displayName: imagescan
-  jobs:
-  - job: scan
-    continueOnError: true 
-    displayName: scan
-    steps:
-    - task: trivy@1
-      inputs:
-        version: 'latest'
-        image: 'elkakimmie/recommendationservice'
+# - stage: Imagescan
+#   displayName: imagescan
+#   jobs:
+#   - job: scan
+#     continueOnError: true 
+#     displayName: scan
+#     steps:
+#     - task: trivy@1
+#       inputs:
+#         version: 'latest'
+#         image: 'elkakimmie/recommendationservice'
 - stage: Push
   displayName: Push image
   jobs:

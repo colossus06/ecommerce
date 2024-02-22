@@ -60,17 +60,17 @@ stages:
         command: 'build'
         Dockerfile: 'src/paymentservice/Dockerfile'
         tags: '$(tag)'
-- stage: Imagescan
-  displayName: imagescan
-  jobs:
-  - job: scan
-    continueOnError: true
-    displayName: scan
-    steps:
-    - task: trivy@1
-      inputs:
-        version: 'latest'
-        image: 'elkakimmie/loadgenerator'
+# - stage: Imagescan
+#   displayName: imagescan
+#   jobs:
+#   - job: scan
+#     continueOnError: true
+#     displayName: scan
+#     steps:
+#     - task: trivy@1
+#       inputs:
+#         version: 'latest'
+#         image: 'elkakimmie/paymentservice'
 - stage: Push
   displayName: Push image
   jobs:

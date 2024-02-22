@@ -9,7 +9,7 @@ cd /tmp/temp_repo
 #$2=$(Build.BuildId)
 #$1=$(service)
 #$(Build.BuildId) $(service)
-sed -i "s/elkakimmie\/$1:latest/elkakimmie\/$1:$2/g" kubernetes-manifests.yaml
+sed -i "s/elkakimmie\/$1:$2/elkakimmie\/$1:$2/g" kubernetes-manifests.yaml
 
 git add .
 git commit -m "Update Kubernetes manifest"
