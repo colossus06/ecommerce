@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: devops-spoke
+  namespace: argocd
+spec:
+  destination:
+    namespace: default
+    name: spoke1-clu
+  source:
+    path: ./
+    repoURL: 'https://github.com/colossus06/microservices-release'
+    targetRevision: master
+  sources: []
+  project: default
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
