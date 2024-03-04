@@ -13,6 +13,7 @@ helm install argocd argo/argo-cd -n argocd -f node-port-values.yaml
 sleep 5
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 kubectl get svc -n argocd
+# edit the following manifests with your info and then apply
 # kubectl apply -f repo-secret.yaml
 # kubectl apply -f application.yaml
 kubectl port-forward service/argocd-server -n argocd 8080:443
